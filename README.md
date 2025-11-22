@@ -33,6 +33,31 @@ A production-grade **distributed electronic voting system** engineered to handle
 
 ---
 
+## 💡 About This Project
+
+**This is a learning project and proof-of-concept** built to share an idea for modernizing democratic voting systems.
+
+**Important Context:**
+- Built by a non-developer as a learning exercise ("vibe coding")
+- Demonstrates architecture concepts, not production-ready code
+- Functional demo that shows the idea works at scale
+- **Needs significant work before real-world use**
+
+**Why Share This?**
+
+This project aims to contribute an idea to the democratic technology community. If you're a security professional, experienced developer, or electoral systems expert:
+
+- 🔍 **Review the architecture** - does the concept have merit?
+- 🔧 **Fork and improve** - make it production-ready
+- 💡 **Use as inspiration** - build something better
+- 🤝 **Contribute fixes** - all improvements welcome
+
+**📋 Security Assessment:** See [SECURITY.md](./SECURITY.md) for honest assessment of current limitations and what would be needed for production use.
+
+**🎯 Goal:** Advance democratic participation technology, whether through this implementation or by inspiring better solutions.
+
+---
+
 ## Use Cases
 
 This voting infrastructure could be deployed in various democratic scenarios:
