@@ -1,0 +1,32 @@
+# Test Dependencies for Voting System Integration Tests
+# Install with: pip install -r requirements.txt
+
+# Testing Framework
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-timeout==2.2.0
+pytest-xdist==3.5.0  # Parallel test execution
+
+# HTTP Client for API Testing
+httpx==0.25.2  # Async HTTP client
+
+# Database Clients
+redis==5.0.1  # Redis client
+psycopg2-binary==2.9.9  # PostgreSQL client
+
+# Load Testing
+locust==2.19.1  # Load testing framework
+
+# Data Generation and Utilities
+faker==22.0.0  # Generate test data
+freezegun==1.4.0  # Time mocking for tests
+
+# Code Quality and Coverage
+coverage[toml]==7.3.3  # Code coverage
+pytest-html==4.1.1  # HTML test reports
+
+# Optional: Additional Test Utilities
+pytest-benchmark==4.0.0  # Performance benchmarking
+pytest-mock==3.12.0  # Mocking utilities
+responses==0.24.1  # Mock HTTP responses

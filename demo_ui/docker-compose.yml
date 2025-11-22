@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  voting-ui:
+    build: .
+    container_name: voting-demo-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - INGESTION_API_URL=${INGESTION_API_URL:-http://host.docker.internal:8000}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
+      - DEBUG=${DEBUG:-False}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:3000/health', timeout=2)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - voting-network
+
+networks:
+  voting-network:
+    driver: bridge

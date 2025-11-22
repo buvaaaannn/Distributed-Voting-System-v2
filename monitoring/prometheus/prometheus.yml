@@ -1,0 +1,93 @@
+# Prometheus Configuration for Election Voting System
+# Monitors ingestion API, validation workers, aggregation service, and infrastructure
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'election-voting'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load alert rules
+rule_files:
+  - 'alerts.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Ingestion API
+  - job_name: 'ingestion-api'
+    static_configs:
+      - targets:
+          - 'ingestion-api:8000'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # Validation Workers (with service discovery)
+  - job_name: 'validation-worker'
+    dns_sd_configs:
+      - names:
+          - 'validation-worker'
+        type: 'A'
+        port: 8001
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    # Fallback to static config if DNS SD not available
+    static_configs:
+      - targets:
+          - 'validation-worker-1:8001'
+          - 'validation-worker-2:8001'
+          - 'validation-worker-3:8001'
+          - 'validation-worker-4:8001'
+
+  # Aggregation Service
+  - job_name: 'aggregation'
+    static_configs:
+      - targets:
+          - 'aggregation:8002'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 5s
+
+  # RabbitMQ Metrics
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets:
+          - 'rabbitmq:15692'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets:
+          - 'redis-exporter:9121'
+    scrape_interval: 15s
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres'
+    static_configs:
+      - targets:
+          - 'postgres-exporter:9187'
+    scrape_interval: 30s
+
+  # Node Exporter (system metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets:
+          - 'node-exporter:9100'
+    scrape_interval: 30s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets:
+          - 'localhost:9090'

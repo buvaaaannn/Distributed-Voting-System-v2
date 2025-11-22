@@ -1,0 +1,222 @@
+# Prometheus Alert Rules for Election Voting System
+
+groups:
+  - name: voting_system_alerts
+    interval: 30s
+    rules:
+      # Queue Depth Alerts
+      - alert: HighValidationQueueDepth
+        expr: rabbitmq_queue_messages{queue="votes.validation"} > 10000
+        for: 5m
+        labels:
+          severity: warning
+          component: queue
+        annotations:
+          summary: "High validation queue depth"
+          description: "Validation queue has {{ $value }} messages (threshold: 10000). Consider scaling up validation workers."
+
+      - alert: CriticalValidationQueueDepth
+        expr: rabbitmq_queue_messages{queue="votes.validation"} > 50000
+        for: 2m
+        labels:
+          severity: critical
+          component: queue
+        annotations:
+          summary: "Critical validation queue depth"
+          description: "Validation queue has {{ $value }} messages (threshold: 50000). System may be overwhelmed."
+
+      # Duplicate Rate Alerts
+      - alert: HighDuplicateRate
+        expr: (rate(votes_duplicate_total[5m]) / rate(votes_received_total[5m])) * 100 > 5
+        for: 10m
+        labels:
+          severity: warning
+          component: validation
+        annotations:
+          summary: "High duplicate vote rate detected"
+          description: "Duplicate rate is {{ $value | humanizePercentage }} (threshold: 5%). Possible attack or misconfiguration."
+
+      - alert: CriticalDuplicateRate
+        expr: (rate(votes_duplicate_total[5m]) / rate(votes_received_total[5m])) * 100 > 15
+        for: 5m
+        labels:
+          severity: critical
+          component: validation
+        annotations:
+          summary: "Critical duplicate vote rate detected"
+          description: "Duplicate rate is {{ $value | humanizePercentage }} (threshold: 15%). Likely under attack."
+
+      # API Latency Alerts
+      - alert: APIHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="ingestion-api"}[5m])) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "API p95 latency is high"
+          description: "95th percentile latency is {{ $value }}s (threshold: 0.2s). API may be slow."
+
+      - alert: APICriticalLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="ingestion-api"}[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "API p95 latency is critically high"
+          description: "95th percentile latency is {{ $value }}s (threshold: 0.5s). Immediate action required."
+
+      # Service Down Alerts
+      - alert: IngestionAPIDown
+        expr: up{job="ingestion-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "Ingestion API is down"
+          description: "Ingestion API has been down for more than 1 minute. No votes can be received."
+
+      - alert: ValidationWorkerDown
+        expr: count(up{job="validation-worker"} == 1) < 2
+        for: 2m
+        labels:
+          severity: critical
+          component: worker
+        annotations:
+          summary: "Insufficient validation workers"
+          description: "Only {{ $value }} validation workers are running. Minimum required: 2."
+
+      - alert: AggregationServiceDown
+        expr: up{job="aggregation"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          component: aggregation
+        annotations:
+          summary: "Aggregation service is down"
+          description: "Aggregation service has been down for more than 2 minutes. Real-time results unavailable."
+
+      - alert: RabbitMQDown
+        expr: up{job="rabbitmq"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "RabbitMQ is down"
+          description: "RabbitMQ has been down for more than 1 minute. Vote processing stopped."
+
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been down for more than 1 minute. Deduplication disabled."
+
+      - alert: PostgresDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL has been down for more than 1 minute. Vote persistence stopped."
+
+      # Error Rate Alerts
+      - alert: HighAPIErrorRate
+        expr: (rate(http_requests_total{job="ingestion-api",status=~"5.."}[5m]) / rate(http_requests_total{job="ingestion-api"}[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High API error rate"
+          description: "API error rate is {{ $value | humanizePercentage }} (threshold: 5%)."
+
+      - alert: CriticalAPIErrorRate
+        expr: (rate(http_requests_total{job="ingestion-api",status=~"5.."}[5m]) / rate(http_requests_total{job="ingestion-api"}[5m])) * 100 > 15
+        for: 2m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "Critical API error rate"
+          description: "API error rate is {{ $value | humanizePercentage }} (threshold: 15%). Immediate action required."
+
+      - alert: HighValidationErrorRate
+        expr: (rate(votes_validation_failed_total[5m]) / rate(votes_validation_processed_total[5m])) * 100 > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: validation
+        annotations:
+          summary: "High validation error rate"
+          description: "Validation error rate is {{ $value | humanizePercentage }} (threshold: 10%)."
+
+      # Resource Alerts
+      - alert: HighRedisMemoryUsage
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }} (threshold: 80%)."
+
+      - alert: CriticalRedisMemoryUsage
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Critical Redis memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }} (threshold: 95%). May cause evictions."
+
+      - alert: HighDatabaseConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High database connection usage"
+          description: "Database connections at {{ $value | humanizePercentage }} of maximum (threshold: 80%)."
+
+      - alert: RabbitMQDiskSpaceLow
+        expr: rabbitmq_disk_space_available_bytes < 1073741824
+        for: 5m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "RabbitMQ disk space low"
+          description: "RabbitMQ has less than 1GB disk space available. Message flow may be blocked."
+
+      # Performance Degradation
+      - alert: SlowValidationProcessing
+        expr: rate(votes_validation_processed_total[5m]) < 100
+        for: 10m
+        labels:
+          severity: warning
+          component: validation
+        annotations:
+          summary: "Slow validation processing"
+          description: "Validation processing rate is {{ $value }} votes/sec (expected: >100). System may be overloaded."
+
+      - alert: QueueConsumerStall
+        expr: rabbitmq_queue_messages{queue="votes.validation"} > 1000 and rate(rabbitmq_queue_messages_consumed_total{queue="votes.validation"}[5m]) == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: worker
+        annotations:
+          summary: "Queue consumer appears stalled"
+          description: "Validation queue has messages but no consumption activity. Workers may be stuck."

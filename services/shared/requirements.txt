@@ -1,0 +1,16 @@
+# Shared dependencies for the voting system services
+# Install with: pip install -r requirements.txt
+
+# No external dependencies required for the shared models
+# The models.py file only uses Python standard library:
+# - hashlib (standard library)
+# - json (standard library)
+# - dataclasses (standard library)
+# - datetime (standard library)
+# - typing (standard library)
+# - enum (standard library)
+
+# However, services using this shared module will need:
+# redis>=4.5.0
+# pika>=1.3.0
+# psycopg2-binary>=2.9.0

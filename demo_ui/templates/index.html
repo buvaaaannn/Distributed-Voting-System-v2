@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote Électronique - Démocratie Directe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Vote Électronique Sécurisé</span>
+            <div class="d-flex">
+                <a href="{{ url_for('results') }}" class="btn btn-outline-light btn-sm">Voir les Résultats</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Tabs for Vote Type Selection -->
+        <ul class="nav nav-tabs mb-4" id="voteTypeTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="law-tab" data-bs-toggle="tab" data-bs-target="#lawVoting" type="button" role="tab">
+                    📜 Vote sur les Lois
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="election-tab" data-bs-toggle="tab" data-bs-target="#electionVoting" type="button" role="tab">
+                    🗳️ Vote pour un Représentant
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="voteTypeTabContent">
+            <!-- LAW VOTING TAB -->
+            <div class="tab-pane fade show active" id="lawVoting" role="tabpanel">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">Soumettre votre vote sur une loi</h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- Alert Messages -->
+                        <div id="alertContainer"></div>
+
+                        <form id="voteForm">
+                            <!-- NAS Input -->
+                            <div class="mb-3">
+                                <label for="nas" class="form-label">Numéro d'Assurance Sociale (NAS)</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="nas"
+                                    name="nas"
+                                    placeholder="123456789"
+                                    maxlength="9"
+                                    pattern="[0-9]{9}"
+                                    required>
+                                <div class="form-text">9 chiffres exactement</div>
+                            </div>
+
+                            <!-- Code Input -->
+                            <div class="mb-3">
+                                <label for="code" class="form-label">Code de Validation</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="code"
+                                    name="code"
+                                    placeholder="ABC123"
+                                    maxlength="6"
+                                    required>
+                                <div class="form-text">6 caractères alphanumériques</div>
+                            </div>
+
+                            <!-- Law ID Selection -->
+                            <div class="mb-3">
+                                <label for="law_id" class="form-label">Loi à voter</label>
+                                <select class="form-select" id="law_id" name="law_id" required>
+                                    <option value="" selected disabled>Sélectionnez une loi...</option>
+                                    {% for law_id in law_ids %}
+                                    <option value="{{ law_id }}">{{ law_id }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Vote Choice -->
+                            <div class="mb-4">
+                                <label class="form-label">Votre vote</label>
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="vote"
+                                        id="votePour"
+                                        value="oui"
+                                        required>
+                                    <label class="form-check-label" for="votePour">
+                                        Pour (Oui)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="vote"
+                                        id="voteContre"
+                                        value="non"
+                                        required>
+                                    <label class="form-check-label" for="voteContre">
+                                        Contre (Non)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <span id="submitText">Soumettre le Vote</span>
+                                    <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Current Results Section -->
+                <div class="card shadow-lg mt-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h3 class="mb-0">Résultats Actuels</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="resultsContainer">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Chargement...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+            <!-- END LAW VOTING TAB -->
+
+            <!-- ELECTION VOTING TAB -->
+            <div class="tab-pane fade" id="electionVoting" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="card shadow-lg">
+                            <div class="card-header bg-success text-white">
+                                <h2 class="mb-0">Vote pour un Représentant</h2>
+                            </div>
+                            <div class="card-body">
+                                <!-- Alert Messages for Elections -->
+                                <div id="electionAlertContainer"></div>
+
+                                <form id="electionVoteForm">
+                                    <!-- NAS Input -->
+                                    <div class="mb-3">
+                                        <label for="electionNas" class="form-label">Numéro d'Assurance Sociale (NAS)</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="electionNas"
+                                            name="nas"
+                                            placeholder="123456789"
+                                            maxlength="9"
+                                            pattern="[0-9]{9}"
+                                            required>
+                                        <div class="form-text">9 chiffres exactement</div>
+                                    </div>
+
+                                    <!-- Code Input -->
+                                    <div class="mb-3">
+                                        <label for="electionCode" class="form-label">Code de Validation</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="electionCode"
+                                            name="code"
+                                            placeholder="ABC123"
+                                            maxlength="6"
+                                            required>
+                                        <div class="form-text">6 caractères alphanumériques</div>
+                                    </div>
+
+                                    <!-- Election Selection -->
+                                    <div class="mb-3">
+                                        <label for="electionSelect" class="form-label">Élection</label>
+                                        <select class="form-select" id="electionSelect" required>
+                                            <option value="" selected disabled>Chargement...</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Region Selection -->
+                                    <div class="mb-3">
+                                        <label for="regionSelect" class="form-label">Votre Région / Circonscription</label>
+                                        <select class="form-select" id="regionSelect" required>
+                                            <option value="" selected disabled>Chargement...</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Voting Method Toggle -->
+                                    <div class="mb-4" id="votingMethodContainer" style="display: none;">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h6 class="card-title">🗳️ Méthode de Vote</h6>
+                                                <p class="small text-muted mb-3">
+                                                    Le <strong>vote préférentiel</strong> permet de classer les candidats par ordre de préférence.
+                                                    Si votre premier choix n'obtient pas assez de votes, votre vote est transféré à votre deuxième choix, etc.
+                                                </p>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="rankedChoiceToggle">
+                                                    <label class="form-check-label" for="rankedChoiceToggle">
+                                                        <strong>Activer le Vote Préférentiel (Réforme Électorale Canadienne)</strong>
+                                                    </label>
+                                                </div>
+                                                <div id="rankedChoiceInfo" class="alert alert-info mt-2" style="display: none;">
+                                                    <small>
+                                                        ✅ <strong>Vote Préférentiel Activé</strong><br>
+                                                        Classez les candidats par ordre de préférence (1er choix, 2e choix, etc.)
+                                                    </small>
+                                                </div>
+                                                <div id="singleChoiceInfo" class="alert alert-secondary mt-2">
+                                                    <small>
+                                                        📊 <strong>Vote Uninominal (Système Actuel)</strong><br>
+                                                        Choisissez UN seul candidat
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Candidates List (Will be populated dynamically) -->
+                                    <div class="mb-4" id="candidatesContainer" style="display: none;">
+                                        <label class="form-label" id="candidatesLabel">Sélectionnez votre candidat</label>
+                                        <div id="candidatesList"></div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-success btn-lg" id="electionSubmitBtn" disabled>
+                                            <span id="electionSubmitText">Soumettre le Vote</span>
+                                            <span id="electionSubmitSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Election Results Section - HIDDEN UNTIL AFTER VOTING -->
+                        <div class="card shadow-lg mt-4" id="electionResultsCard" style="display: none;">
+                            <div class="card-header bg-secondary text-white">
+                                <h3 class="mb-0">🎉 Merci d'avoir voté! Voici les résultats actuels</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="electionResultsContainer">
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Chargement...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END ELECTION VOTING TAB -->
+        </div>
+    </div>
+
+    <footer class="footer mt-5 py-3 bg-dark text-white-50">
+        <div class="container text-center">
+            <small>Système de Vote Électronique Sécurisé - Démocratie Directe 2025</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-11-15T09:45:12.199910",
+  "test_config": {
+    "total_votes": 50001,
+    "target_rate": 10000
+  },
+  "metrics": {
+    "duration_seconds": 161.9215326309204,
+    "total_requests": 50001,
+    "successful_requests": 50001,
+    "failed_requests": 0,
+    "success_rate_percent": 100.0,
+    "requests_per_second": 308.7977194112344,
+    "latency_ms": {
+      "min": 5.92350959777832,
+      "max": 1204.7338485717773,
+      "mean": 171.8367805781549,
+      "p50": 163.12861442565918,
+      "p95": 284.5799922943115,
+      "p99": 334.4459533691406
+    },
+    "errors": {}
+  }
+}

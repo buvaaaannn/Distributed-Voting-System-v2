@@ -1,0 +1,109 @@
+# Docker Compose Override for Development
+#
+# This file provides development-specific configurations:
+# - Volume mounts for hot-reload
+# - Debug ports
+# - Development-friendly settings
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  # Development overrides for Ingestion API
+  ingestion-api:
+    build:
+      context: ./services/ingestion_api
+      dockerfile: Dockerfile
+      target: development  # Use development stage if multi-stage build
+    volumes:
+      # Mount source code for hot-reload
+      - ./services/ingestion_api:/app
+      - ./services/shared:/app/shared
+    environment:
+      - LOG_LEVEL=DEBUG
+      - PYTHONUNBUFFERED=1
+      - RELOAD=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # Python debugger port
+
+  # Development overrides for Validation Worker
+  validation-worker:
+    build:
+      context: ./services/validation_worker
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./services/validation_worker:/app
+      - ./services/shared:/app/shared
+    environment:
+      - LOG_LEVEL=DEBUG
+      - PYTHONUNBUFFERED=1
+
+  # Development overrides for Aggregation Service
+  aggregation:
+    build:
+      context: ./services/aggregation
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./services/aggregation:/app
+      - ./services/shared:/app/shared
+    environment:
+      - LOG_LEVEL=DEBUG
+      - PYTHONUNBUFFERED=1
+
+  # Add Redis Exporter for detailed metrics
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: voting-redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis:6379
+    networks:
+      - voting-network
+    depends_on:
+      - redis
+
+  # Add PostgreSQL Exporter for database metrics
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: voting-postgres-exporter
+    ports:
+      - "9187:9187"
+    environment:
+      - DATA_SOURCE_NAME=postgresql://voting_user:voting_password@postgres:5432/voting?sslmode=disable
+    networks:
+      - voting-network
+    depends_on:
+      - postgres
+
+  # Add Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: voting-node-exporter
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - voting-network
+
+  # Add Adminer for easy database management
+  adminer:
+    image: adminer:latest
+    container_name: voting-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+    networks:
+      - voting-network
+    depends_on:
+      - postgres
