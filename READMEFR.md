@@ -33,6 +33,31 @@ Un **système de vote électronique distribué** de qualité production conçu p
 
 ---
 
+## 💡 À Propos de Ce Projet
+
+**Ceci est un projet d'apprentissage et une preuve de concept** construit pour partager une idée de modernisation des systèmes de vote démocratiques.
+
+**Contexte Important:**
+- Construit par un non-développeur comme exercice d'apprentissage ("vibe coding")
+- Démontre des concepts d'architecture, pas du code prêt pour production
+- Démo fonctionnelle qui montre que l'idée fonctionne à grande échelle
+- **Nécessite un travail significatif avant utilisation réelle**
+
+**Pourquoi Partager Ceci?**
+
+Ce projet vise à contribuer une idée à la communauté technologique démocratique. Si vous êtes un professionnel de la sécurité, développeur expérimenté, ou expert en systèmes électoraux:
+
+- 🔍 **Évaluez l'architecture** - le concept a-t-il du mérite?
+- 🔧 **Forkez et améliorez** - rendez-le prêt pour production
+- 💡 **Utilisez comme inspiration** - construisez quelque chose de meilleur
+- 🤝 **Contribuez des corrections** - toutes améliorations bienvenues
+
+**📋 Évaluation Sécurité:** Voir [SECURITY.md](./SECURITY.md) pour une évaluation honnête des limitations actuelles et de ce qui serait nécessaire pour un usage en production.
+
+**🎯 Objectif:** Faire avancer la technologie de participation démocratique, que ce soit par cette implémentation ou en inspirant de meilleures solutions.
+
+---
+
 ## Cas d'Usage
 
 Cette infrastructure de vote pourrait être déployée dans divers scénarios démocratiques:
